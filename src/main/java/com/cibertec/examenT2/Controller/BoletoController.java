@@ -25,4 +25,9 @@ public class BoletoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) { service.eliminarBoleto(id); return ResponseEntity.noContent().build(); }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BoletoDto> actualizar(@PathVariable Integer id, @RequestBody BoletoDto dto) {
+        return ResponseEntity.ok(service.actualizarBoleto(id, dto));
+    }
 }
