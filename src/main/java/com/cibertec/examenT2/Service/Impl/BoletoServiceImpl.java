@@ -16,23 +16,38 @@ import java.util.stream.Collectors;
 public class BoletoServiceImpl implements BoletoService {
 
     @Autowired private BoletoRepository repo;
-    @Autowired private ClienteRepository clienteRepo; // Inyectar esto
+    @Autowired private ClienteRepository clienteRepo;
     @Autowired private BoletoMapper mapper;
 
     @Override
     public List<BoletoDto> listarBoletos() {
-        return List.of();
+
+        return repo.findAll().stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public BoletoDto obtenerBoleto(Integer id) {
-        return null;
+
+        Boleto b = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Boleto no encontrado"));
+        return mapper.toDTO(b);
+    }
+
+    @Override
+    public void eliminarBoleto(Integer id) {
+
+        if(!repo.existsById(id)) {
+            throw new RuntimeException("No se puede eliminar: Boleto no existe");
+        }
+        repo.deleteById(id);
     }
 
     @Override
     public BoletoDto registrarBoleto(BoletoDto dto) {
         Boleto b = mapper.toEntity(dto);
-        // BUSCAR Y ASIGNAR EL CLIENTE
+
         Cliente c = clienteRepo.findById(dto.getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         b.setCliente(c);
@@ -41,15 +56,14 @@ public class BoletoServiceImpl implements BoletoService {
 
     @Override
     public BoletoDto actualizarBoleto(Integer id, BoletoDto dto) {
-        // BUSCAR SI EXISTE EL BOLETO
+
         Boleto b = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Boleto no encontrado"));
 
-        // ACTUALIZAR CAMPOS
+
         b.setDestino(dto.getDestino());
         b.setPrecio(dto.getPrecio());
 
-        // ACTUALIZAR CLIENTE SI ES NECESARIO
         Cliente c = clienteRepo.findById(dto.getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         b.setCliente(c);
@@ -57,9 +71,5 @@ public class BoletoServiceImpl implements BoletoService {
         return mapper.toDTO(repo.save(b));
     }
 
-    @Override
-    public void eliminarBoleto(Integer id) {
-
-    }
 
 }
