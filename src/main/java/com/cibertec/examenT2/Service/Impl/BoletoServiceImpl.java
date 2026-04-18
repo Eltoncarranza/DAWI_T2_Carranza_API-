@@ -53,22 +53,19 @@ public class BoletoServiceImpl implements BoletoService {
         b.setCliente(c);
         return mapper.toDTO(repo.save(b));
     }
-
     @Override
     public BoletoDto actualizarBoleto(Integer id, BoletoDto dto) {
+        Boleto boletoExistente = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Boleto no encontrado con ID: " + id));
 
-        Boleto b = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Boleto no encontrado"));
+        boletoExistente.setDestino(dto.getDestino());
+        boletoExistente.setPrecio(dto.getPrecio());
 
-
-        b.setDestino(dto.getDestino());
-        b.setPrecio(dto.getPrecio());
-
-        Cliente c = clienteRepo.findById(dto.getIdCliente())
+        Cliente cliente = clienteRepo.findById(dto.getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        b.setCliente(c);
+        boletoExistente.setCliente(cliente);
 
-        return mapper.toDTO(repo.save(b));
+        return mapper.toDTO(repo.save(boletoExistente));
     }
 
 
